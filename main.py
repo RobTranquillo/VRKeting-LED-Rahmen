@@ -1,11 +1,9 @@
-# Complete project details at https://RandomNerdTutorials.com
+"""
+LED Demo Stuff
+"""
 
-from machine import Pin
-from time import sleep
+import leds as leds
 
-led = Pin(2, Pin.OUT)
+leds.OnOff()
 
-while True:
-  led.value(not led.value())
-  sleep(0.5)
-# main.py -- put your code here!
+
