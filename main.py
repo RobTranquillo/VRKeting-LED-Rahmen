@@ -2,8 +2,12 @@
 LED Demo Stuff
 """
 
-import leds as leds
+#std lib 
+import time
 
-leds.OnOff()
+#custom libs
+import leds
+
+leds.OnOffSingle()
 
 
