@@ -20,5 +20,5 @@ import webserver
 
 while True:
     program = webserver.handleWebRequest()
-    print("Run programm: " + program)
+    print("Run LED programm: " + program)
     leds.run(program)
