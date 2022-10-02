@@ -1,4 +1,9 @@
-# This file is executed on every boot (including wake-boot from deepsleep)
+# Complete project details at https://RandomNerdTutorials.com
+import esp
+esp.osdebug(None)
 
 import gc
 gc.collect()
+
+import connectwifi
+import webserver

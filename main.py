@@ -10,9 +10,10 @@ import leds
 
 # leds.OnOffSingle()
 # leds.AllBlue()
-while True:
-    leds.PixelWithTail()
-    leds.AllRandom()
-    time.sleep(4)
+# while True:
+#     leds.PixelWithTail()
+#     leds.AllRandom()
+#     time.sleep(4)
 
 
+import webserver
