@@ -19,8 +19,19 @@ np = neopixel.NeoPixel(machine.Pin(pin), count)
 # Higher Functions
 #######################
 
+"""
+control wich program should start 
+"""
+def run(program):
+    if (program == "first"): PixelWithTail()
+    if (program == "second"): AllRandom()
+
+"""
+One random pixel walks all LEDs
+"""
 def PixelWithTail():
     PixelWithTailColor(RandomColor())
+
 
 """
 Light up second LED for 3 seconds

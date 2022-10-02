@@ -17,3 +17,8 @@ import leds
 
 
 import webserver
+
+while True:
+    program = webserver.handleWebRequest()
+    print("Run programm: " + program)
+    leds.run(program)

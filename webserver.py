@@ -4,9 +4,6 @@ try:
   import usocket as socket
 except:
   import socket
-  
-from machine import Pin
-led = Pin(2, Pin.OUT)
 
 def web_page():
   text_file = open("html/index.html", "r")
@@ -18,7 +15,7 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind(('', 80))
 s.listen(5)
 
-while True:
+def handleWebRequest():
   conn, addr = s.accept()
   print('Got a connection from %s' % str(addr))
   request = conn.recv(1024)
@@ -26,9 +23,10 @@ while True:
   #Print full Request Header
   #print('Content = %s' % request)
 
-  #get Paramters from GET request
-  #led_on = request.find('/?led=on')
-  #über GET die Routen bauen
+  #get paramters from GET request
+  beginGETParams = request.find('/?led=')+6
+  lenghtGETParams = request.find(' ', beginGETParams)
+  program = str(request[beginGETParams:lenghtGETParams])
   
   response = web_page()
   conn.send('HTTP/1.1 200 OK\n')
@@ -36,4 +34,5 @@ while True:
   conn.send('Connection: close\n\n')
   conn.sendall(response)
   conn.close()
+  return program
 
