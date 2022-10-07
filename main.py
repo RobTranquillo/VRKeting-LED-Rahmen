@@ -16,8 +16,10 @@ import leds
 #     time.sleep(4)
 
 
-import webserver
+# run single intro ligths
+leds.run("scanner")
 
+import webserver
 while True:
     program = webserver.handleWebRequest()
     print("Run LED programm: " + program)

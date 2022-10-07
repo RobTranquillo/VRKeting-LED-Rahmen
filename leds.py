@@ -13,6 +13,15 @@ pin = 12
 count = 94   
 #inner ring 0-45
 #outer 93-46 //muss rückwärts, weil falschrum angebaut
+quadrant = 23 #count / 4 => 94 / 4
+innenRechts     = (0, 1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,10)
+innenLinks      = (23,24,25,26,27,28,29,30,31,32,33)
+innenOben       = (11,12,13,14,15,16,17,18,19,20,21,22,23)
+innenUnten      = (34,35,36,37,38,39,40,41,42,43,44,45)
+aussenRechts    = (93,92,91,90,89,88,87,86,85,84,83,82)
+aussenOben      = (81,80,79,78,77,76,75,74,73,72,71,70)
+aussenLinks     = (70,69,68,67,66,65,64,63,62,61,60,59,58)
+aussenUnten     = (46,47,48,49,50,51,52,53,54,55,56,57)
 
 # global hardware driver 
 np = neopixel.NeoPixel(machine.Pin(pin), count)
@@ -25,15 +34,24 @@ np = neopixel.NeoPixel(machine.Pin(pin), count)
 control wich program should start 
 """
 def run(program):
+    if (program == "None") : { }
     if (program == "onePixel"): PixelWithTail()
     if (program == "allRandom"): AllRandom()
     if (program == "circle"): Circle(RandomColor())
     if (program[:8] == "ledIndex"): LedIndex(RandomColor(), int(program[8:]))
+    if (program == "scanner"): Scanner()
+
+"""
+Vertical and horizontal lines
+"""
+def Scanner():
+    SwitchAllByMap(ColorMapSingle(off))
+    HorizontalScanner(RandomColor())
 
 """
 Display one one active LED
 """
-def  LedIndex(color, index):
+def LedIndex(color, index):
     print("Only light up LED: " + str(index))
     SwitchAllByMap(ColorMapSingle(off))
     SwitchLed(index)
@@ -59,8 +77,6 @@ def OnOffSingle():
     time.sleep(3)
     SwitchLed(1, off)
 
-    
-
 """
 All LEDs on, every one with a complete random color
 """
@@ -80,16 +96,43 @@ def AllBlue():
 #######################
 
 """
+
+"""
+def HorizontalScanner(color):
+    for repeat in range(4):
+        for i in range(12):
+            activeLeds = (innenOben[i], aussenOben[i], reversed(innenUnten)[i], aussenUnten[i])
+            SwitchAllByMap(ColorMapArray(color, activeLeds))
+        for i in reversed(range(12)):
+            activeLeds = (innenOben[i], aussenOben[i], reversed(innenUnten)[i], aussenUnten[i])
+            SwitchAllByMap(ColorMapArray(color, activeLeds))
+        for i in range(11):
+            activeLeds = (innenRechts[i], reversed(innenLinks)[i],reversed(aussenLinks)[i+1], aussenRechts[i])
+            SwitchAllByMap(ColorMapArray(color, activeLeds))
+        for i in reversed(range(11)):
+            activeLeds = (innenRechts[i], reversed(innenLinks)[i],reversed(aussenLinks)[i+1], aussenRechts[i])
+            SwitchAllByMap(ColorMapArray(color, activeLeds))
+        
+
+"""
+Helper function to reverse an list
+"""
+def reversed(orgList):
+    newList = []
+    for i in range(len(orgList)):
+        newList.append(orgList[len(orgList)-1-i])
+    return tuple(newList)
+
+"""
 Rotate 4 pixels aligned as one line
 """
-def CircleAround(color):
-    setOfLEDs = (
-        (1, 3, 4),
-        (2, 5, 7)
-    )
-    for leds in setOfLEDs:
-        SwitchAllByMap(ColorMapArray(color, leds))
-        time.sleep(0.5)
+def CircleAround(color):    
+    for rounds in range(4):
+        for i in range(quadrant):
+            activeLeds = (i, i+quadrant, count-i, count-(i+quadrant))
+            #print("active: " + str(activeLeds))
+            SwitchAllByMap(ColorMapArray(color, activeLeds))
+            time.sleep(0.02)
 
 
 """

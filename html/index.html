@@ -39,14 +39,15 @@
         </script>
     </head>
     <body>
-        <h1>Leuchte!</h1> 
+        <h1><a href="/">Leuchte!</a></h1> 
         <h2>Your VRKeting LED wall illumination</h2>
         <p><a href="/?led=circle"><button class="button">Circle Random</button></a></p>
+        <p><a href="/?led=scanner"><button class="button">Scanner Random</button></a></p>
         <p><a href="/?led=onePixel"><button class="button">One Pixel</button></a></p>
         <p><a href="/?led=allRandom"><button class="button">All Random</button></a></p>
         <p><h3>Illuminate single LED with random color</h3>
            <label for="ledIndex">Led:</label>
-           <input   type="range" min="0" max="94" 
+           <input   type="range" min="0" max="93" 
                     id="ledIndex" name="ledIndex" 
                     onchange="SendInt(this.value)"
                     oninput="ledIndexValue.textContent = this.value">
