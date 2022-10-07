@@ -17,7 +17,7 @@ import leds
 
 
 # run single intro ligths
-leds.run("scanner")
+leds.run("flash")
 
 import webserver
 while True:

@@ -42,6 +42,22 @@ def run(program):
     if (program == "scanner"): Scanner()
     if (program == "flash"): Flash()
 
+
+"""
+Quick flash of light
+"""
+def Flash():
+    SwitchAllByMap(ColorMapSingle(off))
+    randomMap = []
+    for i in range(count):
+        randomMap.append(RandomColor())
+    SwitchAllByMap(randomMap)
+    #Todo: --->>
+    #TweenToMap(startMap, endMap, time)
+    time.sleep(1)
+    SwitchAllByMap(ColorMapSingle(off))
+
+
 """
 Vertical and horizontal lines
 """
