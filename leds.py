@@ -40,13 +40,16 @@ def run(program):
     if (program == "circle"): Circle(RandomColor())
     if (program[:8] == "ledIndex"): LedIndex(RandomColor(), int(program[8:]))
     if (program == "scanner"): Scanner()
+    if (program == "flash"): Flash()
 
 """
 Vertical and horizontal lines
 """
 def Scanner():
     SwitchAllByMap(ColorMapSingle(off))
-    HorizontalScanner(RandomColor())
+    for repeat in range(4):
+        HorizontalScanner(RandomColor(), 1)
+        VerticalScanner(RandomColor(), 1)
 
 """
 Display one one active LED
@@ -96,16 +99,21 @@ def AllBlue():
 #######################
 
 """
-
+On each of four sides one pixel is light up in sync 
 """
-def HorizontalScanner(color):
-    for repeat in range(4):
+def HorizontalScanner(color, loops = 1):
+    for loop in range(loops):
         for i in range(12):
             activeLeds = (innenOben[i], aussenOben[i], reversed(innenUnten)[i], aussenUnten[i])
             SwitchAllByMap(ColorMapArray(color, activeLeds))
         for i in reversed(range(12)):
             activeLeds = (innenOben[i], aussenOben[i], reversed(innenUnten)[i], aussenUnten[i])
             SwitchAllByMap(ColorMapArray(color, activeLeds))
+"""
+On each of four sides one pixel is light up in sync 
+"""
+def VerticalScanner(color, loops = 1):
+    for loop in range(loops):
         for i in range(11):
             activeLeds = (innenRechts[i], reversed(innenLinks)[i],reversed(aussenLinks)[i+1], aussenRechts[i])
             SwitchAllByMap(ColorMapArray(color, activeLeds))
