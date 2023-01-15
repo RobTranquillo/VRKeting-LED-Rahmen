@@ -10,7 +10,8 @@
 #include <ESPAsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 
-// Replace with your network credentials
+#pragma region - definition of the global variables -
+// network credentials
 const char* ssid = "22";
 const char* password = "frankreich";
 
@@ -19,9 +20,10 @@ const String PROGRAM_DIRECTCOLOR = "DirectColorLed";
 const char* PARAM_INPUT_LEDS = "leds";
 const char* PARAM_INPUT_COLOR = "color";
 
-// Create AsyncWebServer object on port 80
-AsyncWebServer server(80);
 
+////////////////////////////////////////////////////////
+//Website
+////////////////////////////////////////////////////////
 const char index_html[] PROGMEM = R"rawliteral(
 <!DOCTYPE HTML><html>
   <head>
@@ -57,43 +59,42 @@ const char index_html[] PROGMEM = R"rawliteral(
 </html>
 )rawliteral";
 
-// Replaces placeholder with button section in your web page
-String processor(const String& var)
-{
-  //Serial.println(var);
-  if(var == "BUTTONPLACEHOLDER")
-  {
-    String buttons = "";
-    buttons += "<H4>led one<h4><a href=\"#\" onclick=\"RunLed('"+PROGRAM_DIRECTCOLOR+"')\">led direct color</a> <br>you can edit the GET param by yourself by: /"+PROGRAM_DIRECTCOLOR+"&leds=5&color=000000";
-    return buttons;
-  }
-  return String();
-}
+// Create AsyncWebServer object on port 80
+AsyncWebServer server(80);
 
-String outputState(int output){
-  if(digitalRead(output)){
-    return "checked";
-  }
-  else {
-    return "";
-  }
-}
+#pragma endregion - definition of the global variables -
 
+#pragma region - main functions -
 void setup()
 {
   // Serial port for debugging purposes
   Serial.begin(115200);
-  
+  ConnectToWiFi();  
+  HandleWebrequests();
+  server.begin();
+}
+
+void loop() {
+}
+#pragma endregion - main functions -
+
+#pragma region - network functions -
+////////////////////////////////////////////////////////
+//NETWORK FUNCTIONS
+////////////////////////////////////////////////////////
+void ConnectToWiFi()
+{
   // Connect to Wi-Fi
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
     Serial.println("Connecting to WiFi..");
   }
-
-  // Print ESP Local IP Address
   Serial.println(WiFi.localIP());
+}
 
+void HandleWebrequests()
+{
   // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/html", index_html, processor);
@@ -113,16 +114,32 @@ void setup()
     }
     request->send(200, "text/plain", "OK");
   });
-
-  // Start server
-  server.begin();
 }
+#pragma endregion - network functions -
 
-void loop() {
+#pragma region - helper functions -
+////////////////////////////////////////////////////////
+//HELPER FUNCTIONS
+////////////////////////////////////////////////////////
 
+// Replaces placeholder with button section in your web page
+String processor(const String& var)
+{
+  //Serial.println(var);
+  if(var == "BUTTONPLACEHOLDER")
+  {
+    String buttons = "";
+    buttons += "<H4>led one<h4><a href=\"#\" onclick=\"RunLed('"+PROGRAM_DIRECTCOLOR+"')\">led direct color</a> <br>you can edit the GET param by yourself by: /"+PROGRAM_DIRECTCOLOR+"&leds=5&color=000000";
+    return buttons;
+  }
+  return String();
 }
+#pragma endregion - helper functions -
 
+
+////////////////////////////////////////////////////////
 //LED FUNCTIONS
+////////////////////////////////////////////////////////
 void DirectColorLed(const String& leds, const String& color)
 {
   Serial.print("leds: " +leds+ " color: " + color);
