@@ -14,8 +14,10 @@
 const char* ssid = "22";
 const char* password = "frankreich";
 
-const char* PARAM_INPUT_1 = "output";
-const char* PARAM_INPUT_2 = "state";
+//Direct color LED
+const String PROGRAM_DIRECTCOLOR = "DirectColorLed";
+const char* PARAM_INPUT_LEDS = "leds";
+const char* PARAM_INPUT_COLOR = "color";
 
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
@@ -42,17 +44,12 @@ const char index_html[] PROGMEM = R"rawliteral(
   <body>
     <h2>VRketing Ambiligth</h2>
     %BUTTONPLACEHOLDER%
-    <script>function toggleCheckbox(element) 
+    <script>
+    function RunLed(program)
     {
       var xhr = new XMLHttpRequest();
-      if(element.checked)
-      { 
-        xhr.open("GET", "/update?output="+element.id+"&state=1", true); 
-      }
-      else 
-      { 
-        xhr.open("GET", "/update?output="+element.id+"&state=0", true); 
-      }
+      console.log("LED program: "+program);
+      xhr.open("GET", "/"+program+"?leds=5&color=000000", true);
       xhr.send();
     }
     </script>
@@ -67,9 +64,7 @@ String processor(const String& var)
   if(var == "BUTTONPLACEHOLDER")
   {
     String buttons = "";
-    buttons += "<h4>Output - GPIO 5</h4><label class=\"switch\"><input type=\"checkbox\" onchange=\"toggleCheckbox(this)\" id=\"5\" " + outputState(5) + "><span class=\"slider\"></span></label>";
-    buttons += "<h4>Output - GPIO 4</h4><label class=\"switch\"><input type=\"checkbox\" onchange=\"toggleCheckbox(this)\" id=\"4\" " + outputState(4) + "><span class=\"slider\"></span></label>";
-    buttons += "<h4>Output - GPIO 2</h4><label class=\"switch\"><input type=\"checkbox\" onchange=\"toggleCheckbox(this)\" id=\"2\" " + outputState(2) + "><span class=\"slider\"></span></label>";
+    buttons += "<H4>led one<h4><a href=\"#\" onclick=\"RunLed('"+PROGRAM_DIRECTCOLOR+"')\">led direct color</a> <br>you can edit the GET param by yourself by: /"+PROGRAM_DIRECTCOLOR+"&leds=5&color=000000";
     return buttons;
   }
   return String();
@@ -84,16 +79,10 @@ String outputState(int output){
   }
 }
 
-void setup(){
+void setup()
+{
   // Serial port for debugging purposes
   Serial.begin(115200);
-
-  pinMode(5, OUTPUT);
-  digitalWrite(5, LOW);
-  pinMode(4, OUTPUT);
-  digitalWrite(4, LOW);
-  pinMode(2, OUTPUT);
-  digitalWrite(2, LOW);
   
   // Connect to Wi-Fi
   WiFi.begin(ssid, password);
@@ -111,23 +100,17 @@ void setup(){
   });
 
   // Send a GET request to <ESP_IP>/update?output=<inputMessage1>&state=<inputMessage2>
-  server.on("/update", HTTP_GET, [] (AsyncWebServerRequest *request) {
-    String inputMessage1;
-    String inputMessage2;
-    // GET input1 value on <ESP_IP>/update?output=<inputMessage1>&state=<inputMessage2>
-    if (request->hasParam(PARAM_INPUT_1) && request->hasParam(PARAM_INPUT_2)) {
-      inputMessage1 = request->getParam(PARAM_INPUT_1)->value();
-      inputMessage2 = request->getParam(PARAM_INPUT_2)->value();
-      digitalWrite(inputMessage1.toInt(), inputMessage2.toInt());
+  server.on("/DirectColorLed", HTTP_GET, [] (AsyncWebServerRequest *request) {
+    String inputLeds;
+    String inputColor; 
+
+    //if direct led+color input is given
+    if (request->hasParam(PARAM_INPUT_LEDS) && request->hasParam(PARAM_INPUT_COLOR)) 
+    { 
+      inputLeds = request->getParam(PARAM_INPUT_LEDS)->value();
+      inputColor = request->getParam(PARAM_INPUT_COLOR)->value();    
+      DirectColorLed(inputLeds, inputColor); 
     }
-    else {
-      inputMessage1 = "No message sent";
-      inputMessage2 = "No message sent";
-    }
-    Serial.print("GPIO: ");
-    Serial.print(inputMessage1);
-    Serial.print(" - Set to: ");
-    Serial.println(inputMessage2);
     request->send(200, "text/plain", "OK");
   });
 
@@ -139,3 +122,8 @@ void loop() {
 
 }
 
+//LED FUNCTIONS
+void DirectColorLed(const String& leds, const String& color)
+{
+  Serial.print("leds: " +leds+ " color: " + color);
+}
