@@ -8,7 +8,8 @@
 // Import required libraries
 #include <ESP8266WiFi.h>
 #include <ESPAsyncTCP.h>
-#include <ESPAsyncWebServer.h>
+#include <ESPAsyncWebServer.h>  
+#include "LightFigures.h"
 
 #pragma region - definition of the global variables -
 // network credentials
@@ -20,6 +21,16 @@ const String PROGRAM_DIRECTCOLOR = "DirectColorLed";
 const char* PARAM_INPUT_LEDS = "leds";
 const char* PARAM_INPUT_COLOR = "color";
 
+// LED strip config
+uint8_t LED_PIN = D6;  //#define LED_PIN 6   // arduino  // uint8_t LED_PIN = D6; // esp8266
+
+// INNEN
+//unten: 0-11
+//rechts: 12-22
+//oben: 23-33
+//links: 34-45
+#define LED_COUNT  80
+#define BRIGHTNESS 200 // NeoPixel brightness, 0 (min) to 255 (max)
 
 ////////////////////////////////////////////////////////
 //Website
@@ -62,13 +73,18 @@ const char index_html[] PROGMEM = R"rawliteral(
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
 
+//LED Figures
+LightFigures LF;
+
 #pragma endregion - definition of the global variables -
 
-#pragma region - main functions -
+#pragma region - SETUP/LOOP  -
 void setup()
 {
   // Serial port for debugging purposes
   Serial.begin(115200);
+  LF.setup(LED_COUNT, LED_PIN, BRIGHTNESS);
+  LF.Off(); //reset all LED
   ConnectToWiFi();  
   HandleWebrequests();
   server.begin();
@@ -76,7 +92,7 @@ void setup()
 
 void loop() {
 }
-#pragma endregion - main functions -
+#pragma endregion - SETUP/LOOP -
 
 #pragma region - network functions -
 ////////////////////////////////////////////////////////
@@ -143,4 +159,5 @@ String processor(const String& var)
 void DirectColorLed(const String& leds, const String& color)
 {
   Serial.print("leds: " +leds+ " color: " + color);
+  LF.OneColor(0, 0, 255, 0); //param 0 == hex color
 }
