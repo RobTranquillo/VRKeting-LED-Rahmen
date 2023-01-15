@@ -42,7 +42,7 @@ class LightFigures
         void OneColor(int red, int green, int blue, int wait);
         void OneColor(String hex, int wait);
         // void NewKITT(byte red, byte green, byte blue, int EyeSize, int SpeedDelay, int ReturnDelay);
-        // void Rainbow(int wait);
+        void Rainbow(int wait);
         // void RainbowCycle(int wait);
 
         // void EdgesBottom(uint32_t color);

@@ -16,11 +16,6 @@
 const char* ssid = "22";
 const char* password = "frankreich";
 
-//Direct color LED
-const String PROGRAM_DIRECTCOLOR = "DirectColorLed";
-const char* PARAM_INPUT_LEDS = "leds";
-const char* PARAM_INPUT_COLOR = "color";
-
 // LED strip config
 uint8_t LED_PIN = D6;  //#define LED_PIN 6   // arduino  // uint8_t LED_PIN = D6; // esp8266
 
@@ -55,14 +50,38 @@ const char index_html[] PROGMEM = R"rawliteral(
     </style>
   </head>
   <body>
-    <h2>VRketing Ambiligth</h2>
+    <h2>VRketing Ambilight</h2>
     %BUTTONPLACEHOLDER%
     <script>
-    function RunLed(program)
+  
+    //Example call SendRequest('/Rainbow?speed=200')
+    function SendRequest(url)
+    {
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", url, true);
+      xhr.send();
+    }
+
+
+    function LedProgram(program)
     {
       var xhr = new XMLHttpRequest();
       console.log("LED program: "+program);
-      xhr.open("GET", "/"+program+"?leds=5&color=000000", true);
+
+      switch (program)
+      {
+        case "DirectColorLed": 
+          xhr.open("GET", "/"+program+"?leds=11&color=#FF0000", true);
+          break;
+
+        case "Blue":
+          xhr.open("GET", "/DirectColorLed?leds=100&color=#0000FF", true);
+          break;
+
+        default:
+          xhr.open("GET", "/"+program, true);
+          break;
+      }
       xhr.send();
     }
     </script>
@@ -116,19 +135,36 @@ void HandleWebrequests()
     request->send_P(200, "text/html", index_html, processor);
   });
 
-  // Send a GET request to <ESP_IP>/update?output=<inputMessage1>&state=<inputMessage2>
+  // For testing: Send a GET request to <ESP_IP>/?leds=<LedCount>&color=<html_hex_color>
   server.on("/DirectColorLed", HTTP_GET, [] (AsyncWebServerRequest *request) {
-    String inputLeds;
-    String inputColor; 
-
+    String PARAM_1_LEDS = "leds";
+    String PARAM_2_COLOR = "color";
+    // Route for Direct Led Coloring
     //if direct led+color input is given
-    if (request->hasParam(PARAM_INPUT_LEDS) && request->hasParam(PARAM_INPUT_COLOR)) 
+    if (request->hasParam(PARAM_1_LEDS) && request->hasParam(PARAM_2_COLOR)) 
     { 
-      inputLeds = request->getParam(PARAM_INPUT_LEDS)->value();
-      inputColor = request->getParam(PARAM_INPUT_COLOR)->value();    
+      String inputLeds = request->getParam(PARAM_1_LEDS)->value();
+      String inputColor = request->getParam(PARAM_2_COLOR)->value();    
       DirectColorLed(inputLeds, inputColor); 
+      request->send(200, "text/plain", "OK");
     }
+    else
+    {   
+      request->send(400, "text/plain", "Params 'leds' or 'color' missing in GET param");
+    }
+  });
+
+  // Route for Rainbow
+  server.on("/Rainbow", HTTP_GET, [] (AsyncWebServerRequest *request) {
+    String PARAM_1_SPEED = "speed";
+    if (!request->hasParam(PARAM_1_SPEED)) 
+    { 
+      request->send(400, "text/plain", "Param 'speed' is missing in GET param");
+      return;
+    }
+    Serial.print("Run program: Rainbow ");
     request->send(200, "text/plain", "OK");
+    LF.Rainbow(request->getParam(PARAM_1_SPEED)->value().toInt());
   });
 }
 #pragma endregion - network functions -
@@ -145,7 +181,9 @@ String processor(const String& var)
   if(var == "BUTTONPLACEHOLDER")
   {
     String buttons = "";
-    buttons += "<H4>led one<h4><a href=\"#\" onclick=\"RunLed('"+PROGRAM_DIRECTCOLOR+"')\">led direct color</a> <br>you can edit the GET param by yourself by: /"+PROGRAM_DIRECTCOLOR+"&leds=5&color=000000";
+    buttons += "<h4><a href=\"#\" onclick=\"LedProgram('Blue')\">Blue</a></h4>";
+    buttons += "<h4><a href=\"#\" onclick=\"SendRequest('/Rainbow?speed=200')\">Rainbow</a></h4>";
+    buttons += "<h4><a href=\"#\" onclick=\"LedProgram('DirectColorLed')\">led direct color</a></h4>You can edit the GET param by yourself by: /DirectColorLed&leds=5&color=000000";
     return buttons;
   }
   return String();
@@ -159,5 +197,6 @@ String processor(const String& var)
 void DirectColorLed(const String& leds, const String& color)
 {
   Serial.print("leds: " +leds+ " color: " + color);
-  LF.OneColor(0, 0, 255, 0); //param 0 == hex color
+  int ledInterval = 5;
+  LF.OneColor(0, 0, 255, ledInterval); //param 0 == hex color
 }

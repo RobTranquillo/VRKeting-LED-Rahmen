@@ -17,9 +17,9 @@ void LightFigures::setup(int led_count, int led_pin, int brightness)
     neoPixelBlink.setup(led_count, led_pin, brightness);
 }
 
+
 // //// United Colors Of Rob ////
 // //////////////////////////////
-
 void LightFigures::Off()
 {
     neoPixelBlink.setAll(0,0,0);
@@ -36,6 +36,14 @@ void LightFigures::OneColor(String hex, int wait)
     int num = (int)strtol(tmp, NULL, 16);
     neoPixelBlink.colorWipe(num, wait);
 }
+
+
+void LightFigures::Rainbow(int wait) {
+    neoPixelBlink.Rainbow(wait);
+} 
+
+
+
 
 
 
